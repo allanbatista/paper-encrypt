@@ -33,7 +33,6 @@ jobs:
           coverage run -m unittest discover -s . -p "test_*.py"
           touch config.py
           rouch config-3.py
-          coverage report --ignore-errors
 
       - name: Upload coverage to GitHub
         run: |
@@ -41,4 +40,4 @@ jobs:
           echo "::set-output name=coverage_path::$(pwd)/htmlcov/index.html"
 
       - name: Show coverage in logs
-        run: coverage report
+        run: coverage report --ignore-errors --fail-under=90
