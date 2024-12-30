@@ -9,6 +9,34 @@ PaperEncrypt is a Python tool for encrypting and decrypting files using AES encr
 - **Decrypt files**: Extract encrypted data from QR codes and restore the original content.
 - **All-in-memory processing**: Uses in-memory buffers for improved performance.
 
+**PaperCrypt: Secure Offline Analog Storage Tool**
+
+**Overview**
+
+PaperCrypt is a tool designed to securely store data offline in an analog format. It encrypts a text file and provides options to export the encrypted data as a PDF, image, or plain text. When exporting to PDF or image formats, a QR code containing the encrypted data is generated, making it easy to print and store. The data is encrypted using AES encryption and is protected by a password. Note: The password is unrecoverable, so it must be stored securely.
+
+The primary purpose of PaperCrypt is to enable secure, analog storage of small pieces of sensitive data, such as passwords or cryptocurrency wallet public and private keys.
+
+---
+
+**Steps for Secure Storage**
+
+1. Write your data in a `.txt` file.
+2. Encrypt the data using PaperCrypt. (Do not lose the password as it cannot be recovered.)
+3. Print at least two copies of the generated QR code and store them securely in geographically separated locations.
+4. Delete the `.txt` file and any encrypted files from your computer. (Remember to clear your trash bin.)
+5. Done! Your credentials are now securely stored offline.
+
+---
+
+**Steps to Decrypt Data**
+
+1. Take a photo or scan the generated QR code.
+2. Use PaperCrypt to decrypt the data using the saved QR code and your password.
+
+**Disclaimer:**
+Ensure you follow the recommended steps for secure storage and do not lose the password. Failure to do so may result in permanent loss of access to your encrypted data.
+
 ---
 
 ## Prerequisites
