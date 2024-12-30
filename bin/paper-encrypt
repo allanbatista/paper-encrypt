@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+python -m paper_encrypt.main "$@"

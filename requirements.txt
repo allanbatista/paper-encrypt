@@ -1,0 +1,5 @@
+pycryptodome
+qrcode
+fpdf
+opencv-python
+Pillow
