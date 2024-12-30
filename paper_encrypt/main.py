@@ -1,3 +1,5 @@
+import time
+from pdf2image import convert_from_path
 import getpass
 from datetime import datetime, timezone
 import argparse
@@ -27,7 +29,7 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     encrypted_content = b64encode(iv + encrypted_data).decode('utf-8')
 
     if 'txt' in export_formats:
-        output_txt = os.path.splitext(file_path)[0] + "encrypted.txt"
+        output_txt = os.path.splitext(file_path)[0] + "_encrypted.txt"
         with open(output_txt, 'w+') as f:
             f.write(encrypted_content)
         print(f"Encrypted content saved as QR code in: {output_txt}")
@@ -39,7 +41,7 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     qr_image = qr.make_image(fill_color="black", back_color="white")
 
     if 'img' in export_formats:
-        output_img = os.path.splitext(file_path)[0] + "encrypted.png"
+        output_img = os.path.splitext(file_path)[0] + "_encrypted.png"
         qr_image.save(output_img)
         print(f"Encrypted content saved as QR code in: {output_img}")
 
@@ -70,20 +72,8 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
 
     print(f"Encrypted content saved as QR code in: {output_pdf}")
 
-def decrypt_qr(image_path, password):
-    if not os.path.exists(image_path):
-        print(f"Error: File '{image_path}' does not exist.")
-        return
 
-    # Read QR code from image
-    qr_image = cv2.imread(image_path)
-    detector = cv2.QRCodeDetector()
-    encrypted_content, _, _ = detector.detectAndDecode(qr_image)
-
-    if not encrypted_content:
-        print("No QR code detected or QR code is empty.")
-        return
-
+def decrypt(encrypted_content, password, file_path):
     # Decrypt the content
     key = password.encode('utf-8').ljust(32, b' ')[:32]
     try:
@@ -94,7 +84,7 @@ def decrypt_qr(image_path, password):
         decrypted_data = unpad(cipher.decrypt(encrypted_message), AES.block_size).decode('utf-8')
 
         # Write decrypted content to a new file
-        output_file = os.path.splitext(image_path)[0] + "_decrypted.txt"
+        output_file = os.path.splitext(file_path)[0] + "_decrypted.txt"
         with open(output_file, 'w') as f:
             f.write(decrypted_data)
 
@@ -103,11 +93,86 @@ def decrypt_qr(image_path, password):
         print("Decryption failed. Ensure the password is correct and the QR code is valid.")
         print(f"Error: {e}")
 
+
+def get_file_ext(file_path):
+    if file_path.endswith('.pdf'):
+        return 'pdf'
+
+    if file_path.endswith('png') or file_path.endswith('jpg') or file_path.endswith('jpeg'):
+        return 'img'
+
+    return 'txt'
+
+
+def decrypt_txt(file_path, password):
+    with open(file_path, 'r') as f:
+        decrypt(f.read(), password, file_path)
+
+
+def decrypt_img(file_path, password):
+    # Read QR code from image
+    qr_image = cv2.imread(file_path)
+    detector = cv2.QRCodeDetector()
+    encrypted_content, _, _ = detector.detectAndDecode(qr_image)
+
+    if not encrypted_content:
+        print("No QR code detected or QR code is empty.")
+        return
+
+    decrypt(encrypted_content, password, file_path)
+
+
+def decrypt_pdf(file_path, password):
+    pages = convert_from_path(file_path)
+
+    if len(pages) != 1:
+        print("Only permited PDF with 1 page")
+        return
+
+    tmp_image_file_path = f"/tmp/{int(time.time())}"
+
+    try:
+        pages[0].save(tmp_image_file_path, "JPEG")
+
+        qr_image = cv2.imread(tmp_image_file_path)
+        detector = cv2.QRCodeDetector()
+        encrypted_content, _, _ = detector.detectAndDecode(qr_image)
+
+        if not encrypted_content:
+            print("No QR code detected or QR code is empty.")
+            return
+
+        decrypt(encrypted_content, password, file_path)
+    finally:
+        if os.path.exists(tmp_image_file_path):
+            os.remove(tmp_image_file_path)
+
+
+def decrypt_qr(file_path, password):
+    if not os.path.exists(file_path):
+        print(f"Error: File '{file_path}' does not exist.")
+        return
+
+    ext = get_file_ext(file_path)
+
+    if ext == 'txt':
+        return decrypt_txt(file_path, password)
+
+    if ext == 'pdf':
+        return decrypt_pdf(file_path, password)
+
+    if ext == 'img':
+        return decrypt_img(file_path, password)
+
+    print('Extension is not supported')
+
+
 def main():
     parser = argparse.ArgumentParser(description="Encrypt or decrypt files using AES and QR codes.")
     parser.add_argument("--encrypt", action="store_true", help="Encrypt a file and generate a QR code in a PDF.")
     parser.add_argument("--decrypt", action="store_true", help="Decrypt a QR code from an image.")
-    parser.add_argument("--export", type=str, help="Export format. pdf|img|txt. default=pdf. multiple formats is separed by comman. --export=pdf,img,txt", default='pdf')
+    parser.add_argument("--export", type=str, help="Export format. pdf|img|txt. default=pdf. multiple formats is "
+                                                   "separed by comman. --export=pdf,img,txt", default='pdf')
     parser.add_argument("--title", type=str, help="Title to add to the generated PDF.", default=None)
     parser.add_argument("file_path", type=str, help="Path to the file to encrypt or decrypt.")
 

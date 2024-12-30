@@ -3,3 +3,4 @@ qrcode
 fpdf
 opencv-python
 Pillow
+pdf2image
