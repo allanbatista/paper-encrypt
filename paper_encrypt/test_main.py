@@ -1,6 +1,8 @@
 import os
 import unittest
-from paper_encrypt.main import encrypt_file, decrypt_pdf, decrypt_img, decrypt_txt
+from paper_encrypt.decryptor import decrypt_txt, decrypt_img, decrypt_pdf
+from paper_encrypt.encryptor import encrypt_file
+
 
 class TestPaperEncrypt(unittest.TestCase):
 
@@ -70,6 +72,7 @@ class TestPaperEncrypt(unittest.TestCase):
         with open(decrypted_file, "r") as f:
             content = f.read()
         self.assertEqual(content, "This is a test file.", "Decrypted content does not match original.")
+
 
 if __name__ == "__main__":
     unittest.main()
