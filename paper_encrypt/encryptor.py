@@ -10,8 +10,7 @@ from fpdf import FPDF
 
 def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     if not os.path.exists(file_path):
-        print(f"Error: File '{file_path}' does not exist.")
-        return
+        raise Exception(f"File '{file_path}' does not exist.")
 
     # Read the file content
     with open(file_path, 'r') as f:
@@ -55,7 +54,7 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     pdf.cell(200, 5, txt=datetime.now(timezone.utc).isoformat(), ln=True, align='C')
 
     qr_image.save("temp_qr.png")
-    pdf.image("temp_qr.png", x=(210 - 100) / 2, y=20, w=100)  # Move QR code slightly below the title and center it
+    pdf.image("temp_qr.png", x=(210 - 100) / 2, y=20, w=100)
     os.remove("temp_qr.png")
 
     pdf.set_font("Arial", size=10)

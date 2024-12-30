@@ -34,11 +34,9 @@ jobs:
 
       - name: Upload coverage to GitHub
         run: |
-          touch config.py
-          touch config-3.py
-          coverage html
+          coverage html --omit=config.py,config-3.py
           echo "::set-output name=coverage_path::$(pwd)/htmlcov/index.html"
 
       - name: Show coverage in logs
         run: |
-          coverage report --ignore-errors --fail-under=90
+          coverage report --omit=config.py,config-3.py --ignore-errors --fail-under=90
