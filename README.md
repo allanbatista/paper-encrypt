@@ -50,9 +50,10 @@ python main.py --decrypt --file_path <file_path>
 #### Parameters:
 - `--encrypt`: Encrypt the file.
 - `--decrypt`: Decrypt the file.
-- `--file_path`: Path to the file to encrypt or decrypt.
 - `--export`: Specify export formats (comma-separated): `pdf`, `img`, `txt` (default: `pdf`).
+- `--output_path`: (Optional) Path to save the output files.
 - `--title`: (Optional) Title to add to the PDF.
+- `file_path`: Path to the file to encrypt or decrypt.
 
 ### Example Commands
 
@@ -61,9 +62,19 @@ python main.py --decrypt --file_path <file_path>
 python main.py --encrypt --file_path /path/to/file.txt --export pdf,img --title "My Encrypted File"
 ```
 
+#### Encrypt a pattern of files
+```bash
+python main.py --encrypt --title "My Encrypted File" "/path/to/*.txt"
+```
+
 #### Decrypt a QR code from a PDF
 ```bash
 python main.py --decrypt --file_path /path/to/encrypted_file_encrypted.pdf
+```
+
+#### Decrypt a pattern of files
+```bash
+python main.py --decrypt --output_path=decrypt "/path/to/*.pdf"
 ```
 
 ---

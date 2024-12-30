@@ -8,7 +8,7 @@ from Crypto.Util.Padding import pad
 from fpdf import FPDF
 
 
-def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
+def encrypt_file(file_path, password, title=None, export_formats=['pdf'], output_path=None):
     if not os.path.exists(file_path):
         raise Exception(f"File '{file_path}' does not exist.")
 
@@ -23,8 +23,15 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     encrypted_data = cipher.encrypt(pad(data.encode('utf-8'), AES.block_size))
     encrypted_content = b64encode(iv + encrypted_data).decode('utf-8')
 
+    filename = os.path.basename(file_path)
+
+    if output_path is None:
+        output_path = os.path.dirname(file_path)
+
+    output_filename = os.path.join(output_path, filename)
+
     if 'txt' in export_formats:
-        output_txt = os.path.splitext(file_path)[0] + "_encrypted.txt"
+        output_txt = output_filename + "_encrypted.txt"
         with open(output_txt, 'w+') as f:
             f.write(encrypted_content)
         print(f"Encrypted content saved as QR code in: {output_txt}")
@@ -36,7 +43,7 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     qr_image = qr.make_image(fill_color="black", back_color="white")
 
     if 'img' in export_formats:
-        output_img = os.path.splitext(file_path)[0] + "_encrypted.png"
+        output_img = output_filename + "_encrypted.png"
         qr_image.save(output_img)
         print(f"Encrypted content saved as QR code in: {output_img}")
 
@@ -62,7 +69,7 @@ def encrypt_file(file_path, password, title=None, export_formats=['pdf']):
     pdf.cell(200, 10, txt="Encrypted Text:", ln=True, align='C')
     pdf.multi_cell(0, 5, txt=encrypted_content, border=True)
 
-    output_pdf = os.path.splitext(file_path)[0] + "_encrypted.pdf"
+    output_pdf = output_filename + "_encrypted.pdf"
     pdf.output(output_pdf)
 
     print(f"Encrypted content saved as QR code in: {output_pdf}")

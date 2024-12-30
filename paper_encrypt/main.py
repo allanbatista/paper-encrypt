@@ -1,3 +1,5 @@
+import os
+import glob
 import getpass
 import argparse
 
@@ -12,6 +14,7 @@ def main():
     parser.add_argument("--export", type=str, help="Export format. pdf|img|txt. default=pdf. multiple formats is "
                                                    "separed by comman. --export=pdf,img,txt", default='pdf')
     parser.add_argument("--title", type=str, help="Title to add to the generated PDF.", default=None)
+    parser.add_argument("--output_path", type=str, help="Title to add to the generated PDF.", default=None)
     parser.add_argument("file_path", type=str, help="Path to the file to encrypt or decrypt.")
 
     args = parser.parse_args()
@@ -31,12 +34,28 @@ def main():
             print("Error: Export is only allowed pdf, img or txt")
             return
 
+    file_path = args.file_path
+
+    if not file_path.startswith('/') and (os.environ.get('BASE_PATH') or os.environ.get('BASE_PATH') != ''):
+        file_path = os.path.join(os.environ.get('BASE_PATH'), file_path)
+
+    file_paths = glob.glob(file_path)
+
+    output_path = args.output_path
+
+    if not output_path.startswith('/') and (os.environ.get('BASE_PATH') or os.environ.get('BASE_PATH') != ''):
+        output_path = os.path.join(os.environ.get('BASE_PATH'), output_path)
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
     password = getpass.getpass("Enter password: ")
 
-    if args.encrypt:
-        encrypt_file(args.file_path, password, title=args.title, export_formats=export_formats)
-    elif args.decrypt:
-        decrypt_qr(args.file_path, password)
+    for file_path in file_paths:
+        if args.encrypt:
+            encrypt_file(file_path, password, title=args.title, export_formats=export_formats, output_path=output_path)
+        elif args.decrypt:
+            decrypt_qr(file_path, password, output_path=output_path)
 
 
 if __name__ == "__main__":
