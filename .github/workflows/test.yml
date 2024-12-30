@@ -34,11 +34,11 @@ jobs:
 
       - name: Upload coverage to GitHub
         run: |
+          touch config.py
+          touch config-3.py
           coverage html
           echo "::set-output name=coverage_path::$(pwd)/htmlcov/index.html"
 
       - name: Show coverage in logs
         run: |
-          touch config.py
-          touch config-3.py
           coverage report --ignore-errors --fail-under=90
