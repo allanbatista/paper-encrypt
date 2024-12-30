@@ -31,7 +31,9 @@ jobs:
       - name: Run tests with coverage
         run: |
           coverage run -m unittest discover -s . -p "test_*.py"
-          coverage report
+          touch config.py
+          rouch config-3.py
+          coverage report --ignore-errors
 
       - name: Upload coverage to GitHub
         run: |
